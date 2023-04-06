@@ -1,42 +1,25 @@
 require('dotenv').config();
-
 const express = require('express');
-const jwt = require('jsonwebtoken');
-
 const app = express();
 
+const mongoose = require('mongoose');
+mongoose.connect(`mongodb+srv://adityadubey:adityadubey@cluster0.bzu5sg9.mongodb.net/?retryWrites=true&w=majority`,{useNewUrlParser: true, useUnifiedTopology : true}).catch((error) => console.log(`error while connecting to mongoDb with error ${error}`))
+// mongoose.connect(
+//     `mongodb+srv://adityadubey:${process.env.DB_PASSWORD}@cluster0.bzu5sg9.mongodb.net/?retryWrites=true&w=majority`,
+//     { useUnifiedTopology: true, useNewUrlParser: true},
+//     () => console.log('connected to mongodb.')
+// );
+
+// middileware
 app.use(express.json());
 
+// routes
+const auth_routes = require('./routes/auth.route');
+const user_routes = require('./routes/user.route');
 
-app.post('/login',(req,res) => {
-    const {userName, password} = req.body;
-    if(userName === 'aditya_dubey', password === '1234'){
-const access_token = jwt.sign({sub : userName}, process.env.JWT_ACCESS_SECRET, {expiresIn : process.env.JWT_ACCESS_TIME})
-const refresh_token = jwt.sign({sub : userName}, process.env.JWT_REFRESH_TOKEN, {expiresIn : process.env.JWT_ACCESS_TIME})
+app.use('/v1/auth', auth_routes);
+app.use('/v1/user', user_routes);
 
-return res.status(200).json({status : true, message : "noice", data : {access_token}});
-    }
 
-    return res.status(401).json({status : false, messsage : 'trying it out'});
-})
 
-app.get('/dashBoard',verifyToken, (req,res) => {
-    return res.status(200).json({status : true, message : 'dashboard'})
-})
-
-function verifyToken(req,res,next){
-    try{
-    
-
-        const token = req.headers.authorization.split(' ')[1]
-
-        const decoded = jwt.decode(token, process.env.JWT_ACCESS_SECRET);
-        req.userData = decoded;
-        next();
-    }
-    catch(error){
-        return res.status(401).json({status : false, messsage : 'try your luck next time',  error} )
-    }
-}
-
-app.listen(3000, () => console.log('listening at 3000'));
+app.listen(3000, () => console.log('server is running..'));
