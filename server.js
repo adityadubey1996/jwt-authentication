@@ -12,6 +12,8 @@ app.post('/login',(req,res) => {
     const {userName, password} = req.body;
     if(userName === 'aditya_dubey', password === '1234'){
 const access_token = jwt.sign({sub : userName}, process.env.JWT_ACCESS_SECRET, {expiresIn : process.env.JWT_ACCESS_TIME})
+const refresh_token = jwt.sign({sub : userName}, process.env.JWT_REFRESH_TOKEN, {expiresIn : process.env.JWT_ACCESS_TIME})
+
 return res.status(200).json({status : true, message : "noice", data : {access_token}});
     }
 
